@@ -6,7 +6,7 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: REPLACE_WITH_YOUR_GITHUB_REPO_URL
+    repoURL: https://github.com/nazeem2906/ecom-platform-gitops.git
     targetRevision: main
     path: gitops/root
   destination:
