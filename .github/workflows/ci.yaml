@@ -1,0 +1,63 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+
+jobs:
+  validate-kustomize:
+    name: Validate Kustomize overlays
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install kubectl
+        uses: azure/setup-kubectl@v4
+        with:
+          version: latest
+
+      - name: Render dev overlay
+        run: kubectl kustomize apps/overlays/dev > /tmp/dev.yaml
+
+      - name: Render staging overlay
+        run: kubectl kustomize apps/overlays/staging > /tmp/staging.yaml
+
+      - name: Render prod overlay
+        run: kubectl kustomize apps/overlays/prod > /tmp/prod.yaml
+
+      - name: Render root GitOps
+        run: kubectl kustomize gitops/root > /tmp/root.yaml
+
+  trivy-fs:
+    name: Trivy filesystem scan
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Run Trivy filesystem scan
+        uses: aquasecurity/trivy-action@0.24.0
+        with:
+          scan-type: 'fs'
+          scan-ref: '.'
+          format: 'table'
+          exit-code: '0'
+          severity: 'CRITICAL,HIGH'
+
+  yamllint:
+    name: YAML sanity check
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install yamllint
+        run: pip install yamllint
+
+      - name: Run yamllint
+        run: yamllint .
