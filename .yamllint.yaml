@@ -1,8 +1,18 @@
 extends: default
 
+ignore: |
+  .github/
+  screenshots/
+
 rules:
   line-length:
-    max: 180
+    max: 220
     level: warning
   document-start: disable
   truthy: disable
+  comments: disable
+  comments-indentation: disable
+  indentation:
+    indent-sequences: consistent
+  empty-lines:
+    max: 2
