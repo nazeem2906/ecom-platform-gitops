@@ -7,6 +7,8 @@ resources:
   - ../../base
 
 patches:
+  - path: frontend-html-patch.yaml
+  - path: frontend-replicas-patch.yaml
   - target:
       kind: Ingress
       name: frontend

@@ -3,7 +3,6 @@ kind: Kustomization
 
 resources:
   - project/platform-project.yaml
-  - apps/whoami-dev.yaml
   - apps/ecommerce-dev.yaml
   - apps/ecommerce-staging.yaml
   - apps/ecommerce-prod.yaml
