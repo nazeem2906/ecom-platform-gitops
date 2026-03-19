@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: productcatalog
-          image: image: us-docker.pkg.dev/google-samples/microservices-demo/productcatalogservice:v0.10.2
+          image: us-central1-docker.pkg.dev/google-samples/microservices-demo/productcatalogservice:v0.10.5
           ports:
             - containerPort: 3550
           resources:
