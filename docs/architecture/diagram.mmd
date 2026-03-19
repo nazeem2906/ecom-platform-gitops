@@ -1,0 +1,183 @@
+%%{init: {
+  "theme": "base",
+  "themeVariables": {
+    "fontSize": "18px",
+    "fontFamily": "Inter, Segoe UI, Arial, sans-serif",
+    "primaryTextColor": "#0F172A",
+    "lineColor": "#94A3B8",
+    "tertiaryColor": "#ffffff",
+    "background": "#ffffff"
+  },
+  "flowchart": {
+    "nodeSpacing": 40,
+    "rankSpacing": 55,
+    "curve": "basis",
+    "padding": 20
+  }
+}}%%
+flowchart TB
+
+    %% =========================
+    %% ACCESS
+    %% =========================
+    USER[👨‍💻 Utilisateur / Recruteur]
+    BROWSER[🌐 Navigateur]
+    LOCAL[localhost / local domains]
+    INGRESS[Ingress NGINX<br/>:8080 / :8443]
+
+    USER --> BROWSER --> LOCAL --> INGRESS
+
+    %% =========================
+    %% DELIVERY
+    %% =========================
+    DEV[💻 Developer]
+    APPREPO[Repo App<br/>frontend / api / worker]
+    GITOPSREPO[Repo GitOps<br/>Helm / Kustomize / Argo CD]
+    CI[GitHub Actions]
+    SCAN[Trivy]
+    REGISTRY[Container Registry<br/>local / GHCR]
+
+    DEV --> APPREPO
+    DEV --> GITOPSREPO
+    APPREPO --> CI --> SCAN --> REGISTRY
+    CI --> GITOPSREPO
+
+    %% =========================
+    %% CLUSTER
+    %% =========================
+    subgraph CLUSTER["kind Kubernetes Cluster"]
+        direction TB
+
+        subgraph PLATFORM["Platform"]
+            direction LR
+            ARGO[Argo CD]
+            METRICS[Metrics Server]
+            CERT[cert-manager]
+            SECRETS[Sealed Secrets]
+        end
+
+        subgraph OBS["Observabilité"]
+            direction LR
+            PROM[Prometheus]
+            GRAFANA[Grafana]
+            LOKI[Loki]
+            ALLOY[Alloy]
+        end
+
+        subgraph APPS["Applications"]
+            direction LR
+            DEVENV["dev<br/>frontend / api / worker"]
+            STAGEENV["staging<br/>frontend / api / worker"]
+            PRODENV["prod<br/>frontend / api / worker"]
+        end
+
+        subgraph DATA["Data"]
+            direction LR
+            POSTGRES[(PostgreSQL)]
+            REDIS[(Redis)]
+            RABBIT[(RabbitMQ)]
+            STORAGE[(PVC / StorageClass)]
+        end
+
+        subgraph SECURITY["Sécurité / Résilience"]
+            direction LR
+            RBAC[RBAC]
+            NETPOL[NetworkPolicies]
+            PSS[Pod Security]
+            HPA[HPA / PDB / Probes]
+            POLICY[Kyverno / Falco]
+        end
+
+        subgraph BACKUP["Backup / Restore"]
+            direction LR
+            VELERO[Velero]
+            MINIO[(MinIO)]
+        end
+    end
+
+    %% =========================
+    %% FLOWS
+    %% =========================
+    GITOPSREPO --> ARGO
+    REGISTRY --> ARGO
+
+    INGRESS --> DEVENV
+    INGRESS --> STAGEENV
+    INGRESS --> PRODENV
+    INGRESS --> GRAFANA
+    INGRESS --> ARGO
+
+    DEVENV --> POSTGRES
+    DEVENV --> REDIS
+    DEVENV --> RABBIT
+
+    STAGEENV --> POSTGRES
+    STAGEENV --> REDIS
+    STAGEENV --> RABBIT
+
+    PRODENV --> POSTGRES
+    PRODENV --> REDIS
+    PRODENV --> RABBIT
+
+    POSTGRES --> STORAGE
+    REDIS --> STORAGE
+    RABBIT --> STORAGE
+
+    DEVENV --> PROM
+    STAGEENV --> PROM
+    PRODENV --> PROM
+    INGRESS --> PROM
+    METRICS --> PROM
+
+    DEVENV --> ALLOY --> LOKI
+    STAGEENV --> ALLOY
+    PRODENV --> ALLOY
+
+    PROM --> GRAFANA
+    LOKI --> GRAFANA
+
+    RBAC --> APPS
+    NETPOL --> APPS
+    PSS --> APPS
+    HPA --> APPS
+    POLICY --> APPS
+
+    VELERO --> MINIO
+    POSTGRES --> VELERO
+    REDIS --> VELERO
+    RABBIT --> VELERO
+    APPS --> VELERO
+
+    %% =========================
+    %% STYLES
+    %% =========================
+    classDef user fill:#EEF2FF,stroke:#6366F1,color:#1E1B4B;
+    classDef edge fill:#E0F2FE,stroke:#38BDF8,color:#075985;
+    classDef repo fill:#F5F3FF,stroke:#A78BFA,color:#4C1D95;
+    classDef platform fill:#E0F2FE,stroke:#38BDF8,color:#075985;
+    classDef obs fill:#DCFCE7,stroke:#4ADE80,color:#14532D;
+    classDef apps fill:#ECFCCB,stroke:#A3E635,color:#365314;
+    classDef data fill:#FEF9C3,stroke:#FACC15,color:#713F12;
+    classDef sec fill:#FCE7F3,stroke:#F472B6,color:#831843;
+    classDef backup fill:#CCFBF1,stroke:#2DD4BF,color:#134E4A;
+
+    class USER,BROWSER,LOCAL user;
+    class INGRESS edge;
+    class DEV,APPREPO,GITOPSREPO,CI,SCAN,REGISTRY repo;
+
+    class ARGO,METRICS,CERT,SECRETS platform;
+    class PROM,GRAFANA,LOKI,ALLOY obs;
+    class DEVENV,STAGEENV,PRODENV apps;
+    class POSTGRES,REDIS,RABBIT,STORAGE data;
+    class RBAC,NETPOL,PSS,HPA,POLICY sec;
+    class VELERO,MINIO backup;
+
+    style CLUSTER fill:#F8FAFC,stroke:#CBD5F5,stroke-width:2px
+    style PLATFORM fill:#E0F2FE,stroke:#7DD3FC
+    style OBS fill:#DCFCE7,stroke:#86EFAC
+    style APPS fill:#ECFCCB,stroke:#BEF264
+    style DATA fill:#FEF9C3,stroke:#FDE047
+    style SECURITY fill:#FCE7F3,stroke:#F9A8D4
+    style BACKUP fill:#CCFBF1,stroke:#5EEAD4
+
+    linkStyle default stroke:#94A3B8,stroke-width:1.8px,color:#64748B

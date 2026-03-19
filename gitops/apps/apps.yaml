@@ -1,0 +1,20 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: whoami-dev
+  namespace: argocd
+spec:
+  project: platform
+  source:
+    repoURL: REPLACE_WITH_YOUR_GITHUB_REPO_URL
+    targetRevision: main
+    path: gitops/apps/whoami-dev
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: dev
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
