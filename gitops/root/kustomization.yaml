@@ -2,5 +2,5 @@ apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 
 resources:
-  - ../projects/platform-project.yaml
-  - ../apps/apps.yaml
+  - project/platform-project.yaml
+  - apps/whoami-dev.yaml
