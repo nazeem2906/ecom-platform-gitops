@@ -3,10 +3,16 @@ grafana:
   ingress:
     enabled: true
     ingressClassName: nginx
+    annotations:
+      cert-manager.io/cluster-issuer: selfsigned-issuer
     hosts:
       - grafana.localhost
     path: /
     pathType: Prefix
+    tls:
+      - secretName: grafana-localhost-tls
+        hosts:
+          - grafana.localhost
 
 prometheus:
   prometheusSpec:
