@@ -5,6 +5,6 @@ resources:
   - redis.yaml
   - productcatalog.yaml
   - frontend-configmap.yaml
-  - frontend.yaml
+  - frontend-service.yaml
   - rabbitmq.yaml
   - worker.yaml

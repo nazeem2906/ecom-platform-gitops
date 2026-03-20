@@ -7,6 +7,7 @@ resources:
   - ../../base
   - rabbitmq-ingress.yaml
   - worker-scaledobject.yaml
+  - frontend-rollout.yaml
 
 patches:
   - path: frontend-html-patch.yaml
