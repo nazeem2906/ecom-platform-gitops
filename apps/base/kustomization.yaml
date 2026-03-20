@@ -6,3 +6,5 @@ resources:
   - productcatalog.yaml
   - frontend-configmap.yaml
   - frontend.yaml
+  - rabbitmq.yaml
+  - worker.yaml

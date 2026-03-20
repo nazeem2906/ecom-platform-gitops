@@ -1,0 +1,87 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: velero-minio-credentials
+  namespace: velero
+type: Opaque
+stringData:
+  MINIO_ROOT_USER: velero
+  MINIO_ROOT_PASSWORD: velero12345
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: velero-minio-pvc
+  namespace: velero
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: standard
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: velero-minio
+  namespace: velero
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: velero-minio
+  template:
+    metadata:
+      labels:
+        app: velero-minio
+    spec:
+      containers:
+        - name: minio
+          image: minio/minio:latest
+          args:
+            - server
+            - /data
+          envFrom:
+            - secretRef:
+                name: velero-minio-credentials
+          ports:
+            - containerPort: 9000
+          resources:
+            requests:
+              cpu: 50m
+              memory: 128Mi
+            limits:
+              cpu: 250m
+              memory: 256Mi
+          volumeMounts:
+            - name: data
+              mountPath: /data
+          readinessProbe:
+            tcpSocket:
+              port: 9000
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          livenessProbe:
+            tcpSocket:
+              port: 9000
+            initialDelaySeconds: 10
+            periodSeconds: 10
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: velero-minio-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: velero-minio
+  namespace: velero
+spec:
+  selector:
+    app: velero-minio
+  ports:
+    - name: api
+      port: 9000
+      targetPort: 9000
+  type: ClusterIP

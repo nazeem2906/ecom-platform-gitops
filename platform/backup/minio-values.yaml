@@ -1,0 +1,30 @@
+image:
+  registry: docker.io
+  repository: bitnami/minio
+  tag: latest
+
+auth:
+  rootUser: velero
+  rootPassword: velero12345
+
+defaultBuckets: velero
+
+mode: standalone
+
+persistence:
+  enabled: true
+  size: 1Gi
+
+resources:
+  requests:
+    cpu: 50m
+    memory: 128Mi
+  limits:
+    cpu: 250m
+    memory: 256Mi
+
+console:
+  enabled: false
+
+service:
+  type: ClusterIP
