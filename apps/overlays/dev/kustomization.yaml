@@ -5,6 +5,7 @@ namespace: dev
 
 resources:
   - ../../base
+  - rabbitmq-ingress.yaml
 
 patches:
   - path: frontend-html-patch.yaml
