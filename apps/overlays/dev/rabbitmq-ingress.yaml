@@ -2,8 +2,14 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: rabbitmq-management
+  annotations:
+    cert-manager.io/cluster-issuer: selfsigned-issuer
 spec:
   ingressClassName: nginx
+  tls:
+    - hosts:
+        - rabbitmq-dev.localhost
+      secretName: rabbitmq-dev-localhost-tls
   rules:
     - host: rabbitmq-dev.localhost
       http:
