@@ -1,0 +1,19 @@
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: worker-rabbitmq
+spec:
+  scaleTargetRef:
+    name: worker
+  pollingInterval: 15
+  cooldownPeriod: 60
+  minReplicaCount: 1
+  maxReplicaCount: 5
+  triggers:
+    - type: rabbitmq
+      metadata:
+        protocol: amqp
+        host: amqp://admin:admin123@rabbitmq.dev.svc.cluster.local:5672/
+        queueName: jobs
+        mode: QueueLength
+        value: "5"
